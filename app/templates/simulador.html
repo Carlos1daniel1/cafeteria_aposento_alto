@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simulador</title>
+</head>
+<body>
+
+<h1>Simulador de Cajas</h1>
+
+<button onclick="llamar(1)">Caja 1</button>
+<button onclick="llamar(2)">Caja 2</button>
+<button onclick="llamar(3)">Caja 3</button>
+<button onclick="llamar(4)">Caja 4</button>
+
+<script>
+
+function llamar(caja){
+
+    fetch(`/llamar/${caja}`)
+    .then(r => r.json())
+    .then(data => {
+        alert("Llamada enviada a Caja " + caja)
+    });
+
+}
+
+</script>
+
+</body>
+</html>

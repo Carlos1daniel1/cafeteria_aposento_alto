@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Cafetería</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:black;
+            color:white;
+
+            width:100vw;
+            height:100vh;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            font-family:Arial, Helvetica, sans-serif;
+            overflow:hidden;
+        }
+
+        #mensaje{
+            font-size:80px;
+            font-weight:bold;
+            text-align:center;
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <div id="mensaje">
+        Bienvenidos
+    </div>
+    <audio id="dingAudio">
+        <source src="{{ url_for('static', filename='audio/ding.mp3') }}" type="audio/mpeg">
+    </audio>
+    <script>
+
+        let mostrando = false;
+
+        function revisar(){
+
+            if(mostrando){
+                return;
+            }
+
+            fetch('/estado')
+            .then(response => response.json())
+            .then(data => {
+
+                if(!data.caja){
+
+                    document.getElementById("mensaje").innerHTML =
+                        "Bienvenidos";
+
+                    return;
+                }
+
+                mostrando = true;
+
+document.getElementById("mensaje").innerHTML =
+    "PASAR A CAJA " + data.caja;
+
+// Reproducir ding
+
+const ding = document.getElementById("dingAudio");
+
+ding.play();
+
+setTimeout(() => {
+
+    const voces = speechSynthesis.getVoices();
+
+const vozSabina = voces.find(
+    voz => voz.name.includes("Sabina")
+);
+
+const mensajeVoz =
+    new SpeechSynthesisUtterance(
+        "Atención por favor. Pasar a caja " + data.caja
+    );
+
+mensajeVoz.voice = vozSabina;
+mensajeVoz.lang = "es-MX";
+
+mensajeVoz.rate = 0.92;
+mensajeVoz.pitch = 1.1;
+
+speechSynthesis.speak(mensajeVoz);
+},1200);
+
+setTimeout(() => {
+
+    mostrando = false;
+
+    revisar();
+
+},6000);
+
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        }
+        
+        setInterval(revisar,1000);
+
+    </script>
+
+</body>
+</html>
