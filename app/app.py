@@ -1,8 +1,30 @@
 from flask import Flask, render_template, jsonify
+import os
+import threading
 
 app = Flask(__name__)
 
 cola_llamados = []
+
+def reproducir_audio(caja):
+
+    import subprocess
+
+    texto = f"Atencion por favor. Pasar a caja {caja}."
+
+    subprocess.run(
+    [
+    "/home/cafeteria/piper-bin/piper/piper",
+    "--model",
+    "/home/cafeteria/piper/voces/es_MX-claude-high.onnx",
+    "--output_file",
+    "/tmp/anuncio.wav"
+    ],
+    input=texto.encode("utf-8")
+    )
+
+    subprocess.run(["aplay", "/tmp/anuncio.wav"])
+
 
 @app.route("/")
 def login():
@@ -22,6 +44,11 @@ def llamar(caja):
     global cola_llamados
 
     cola_llamados.append(caja)
+
+    threading.Thread(
+    target=reproducir_audio,
+    args=(caja, )
+    ).start()
 
     return jsonify({
         "ok": True,
